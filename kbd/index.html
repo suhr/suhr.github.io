@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>A music keyboard</title>
+
+  <link rel="stylesheet" href="keyboard.css">
+</head>
+
+<body>
+  <!-- <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.5.35/Tone.js"></script> -->
+  <script src="bundle.js"></script>
+
+  <p class="hint">Press real keybard keys...</p>
+
+  <div class="keyboard">
+    <div class="section-a">
+      <div class="key function space1">
+        Esc
+      </div>
+
+      <div class="key function">
+        F1
+      </div>
+      <div class="key function">
+        F2
+      </div>
+      <div class="key function">
+        F3
+      </div>
+
+      <div class="key function space2">
+        F4
+      </div>
+      <div class="key function">
+        F5
+      </div>
+      <div class="key function">
+        F6
+      </div>
+      <div class="key function">
+        F7
+      </div>
+      <div class="key function space2">
+        F8
+      </div>
+
+      <div class="key function">
+        F9
+      </div>
+      <div class="key function">
+        F10
+      </div>
+      <div class="key function">
+        F11
+      </div>
+      <div class="key function">
+        F12
+      </div>
+      <!--END FUNCTION KEYS -->
+
+      <div class="key num dual">
+        ~<br>`
+      </div>
+
+      <div class="key num dual">
+        !<br>1
+      </div>
+      <div id="d2" class="key num letter">
+        C♭
+      </div>
+      <div id="d3" class="key num letter">
+        D♭
+      </div>
+      <div id="d4" class="key num letter">
+        E♭
+      </div>
+      <div id="d5" class="key num letter">
+        F
+      </div>
+      <div id="d6" class="key num letter">
+        G
+      </div>
+      <div id="d7" class="key num letter">
+        A
+      </div>
+      <div id="d8" class="key num letter">
+        B
+      </div>
+      <div id="d9" class="key num letter">
+        C♯
+      </div>
+      <div id="d0" class="key num letter">
+        D♯
+      </div>
+      <div id="minus" class="key num letter">
+        E♯
+      </div>
+      <div class="key num dual">
+        +<br>=
+      </div>
+      <div class="key backspace">
+        Backspace
+      </div>
+      <!--END NUMBER KEYS -->
+
+      <div class="key tab">
+        Tab
+      </div>
+
+      <div id="q" class="key letter">
+        F♭
+      </div>
+      <div id="w" class="key letter">
+        G♭
+      </div>
+      <div id="e" class="key letter">
+        A♭
+      </div>
+      <div id="r" class="key letter">
+        B♭
+      </div>
+      <div id="t" class="key letter">
+        C
+      </div>
+      <div id="y" class="key letter">
+        D
+      </div>
+      <div id="u" class="key letter">
+        E
+      </div>
+      <div id="i" class="key letter">
+        F♯
+      </div>
+      <div id="o" class="key letter">
+        G♯
+      </div>
+      <div id="p" class="key letter">
+        A♯
+      </div>
+      <div id="brace" class="key letter">
+        B♯
+      </div>
+      <div class="key dual">
+        }<br>]
+      </div>
+      <div class="key letter dual slash">
+        |<br>\
+      </div>
+      <div class="key caps">
+        Caps<br>Lock
+      </div>
+      <div id="a" class="key letter">
+        C♭
+      </div>
+      <div id="s" class="key letter">
+        D♭
+      </div>
+      <div id="d" class="key letter">
+        E♭
+      </div>
+      <div id="f" class="key letter">
+        F
+      </div>
+      <div id="g" class="key letter">
+        G
+      </div>
+      <div id="h" class="key letter">
+        A
+      </div>
+      <div id="j" class="key letter">
+        B
+      </div>
+      <div id="k" class="key letter">
+        C♯
+      </div>
+      <div id="l" class="key letter">
+        D♯
+      </div>
+      <div id="semicolon" class="key letter">
+        E♯
+      </div>
+      <div class="key dual">
+        "<br>'
+      </div>
+      <div class="key enter">
+        Enter
+      </div>
+
+      <div class="key shift left">
+        Shift
+      </div>
+      <div id="z" class="key letter">
+        G♭
+      </div>
+      <div id="x" class="key letter">
+        A♭
+      </div>
+      <div id="c" class="key letter">
+        B♭
+      </div>
+      <div id="v" class="key letter">
+        C
+      </div>
+      <div id="b" class="key letter">
+        D
+      </div>
+      <div id="n" class="key letter">
+        E
+      </div>
+      <div id="m" class="key letter">
+        F♯
+      </div>
+      <div id="comma" class="key letter">
+        G♯
+      </div>
+      <div id="dot" class="key letter">
+        A♯
+      </div>
+      <div id="slash" class="key letter">
+        B♯
+      </div>
+      <div class="key shift right">
+        Shift
+      </div>
+      <div class="key ctrl">
+        Ctrl
+      </div>
+      <div class="key">
+        ◇
+      </div>
+      <div class="key">
+        Alt
+      </div>
+      <div class="key space">
+
+      </div>
+      <div class="key">
+        Alt
+      </div>
+      <div class="key">
+        ◇
+      </div>
+      <div class="key">
+        ☰
+      </div>
+      <div class="key ctrl">
+        Ctrl
+      </div>
+    </div><!-- end section-a-->
+
+    <div class="section-b">
+      <div class="key function small">
+        Prnt Scrn
+      </div>
+      <div class="key function small">
+        Scroll Lock
+      </div>
+      <div class="key function small">
+        Pause Break
+      </div>
+
+      <dic class="sec-func">
+        <div class="key">
+          Insert
+        </div>
+        <div class="key">
+          Home
+        </div>
+        <div class="key dual">
+          Page Up
+        </div>
+        <div class="key">
+          Del
+        </div>
+        <div class="key">
+          End
+        </div>
+        <div class="key dual">
+          Page Down
+        </div>
+
+        <div class="arrows">
+          <div class="key hidden">
+
+          </div>
+          <div class="key">
+            ^
+          </div>
+          <div class="key hidden">
+
+          </div>
+          <div class="key">
+            < </div> <div class="key">
+              v
+          </div>
+          <div class="key">
+            >
+          </div>
+        </div><!-- end arrows -->
+    </div><!-- end sec-func -->
+  </div><!-- end section-b-->
+  </div>
+</body>
+
+</html>
