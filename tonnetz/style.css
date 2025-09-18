@@ -1,0 +1,194 @@
+.cof-key {
+  fill: transparent;
+}
+
+.cof-key text {
+  fill: black !important;
+  pointer-events: none;
+}
+
+.cof-key :hover {
+  fill: aquamarine;
+  cursor: pointer;
+}
+
+.dg-key-0 {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.dg-key-0 :hover {
+  fill: silver;
+}
+
+.dg-key-0 text {
+  fill: black;
+  pointer-events: none;
+  font-family: sans-serif;
+}
+
+.dg-key-1 {
+  fill: #ebebeb;
+  cursor: pointer;
+}
+
+.dg-key-1 :hover {
+  fill: silver;
+}
+
+.dg-key-1 text {
+  fill: black;
+  pointer-events: none;
+  font-family: sans-serif;
+}
+
+.dg-key-2 {
+  fill: #696969;
+  cursor: pointer;
+}
+
+.dg-key-2 :hover {
+  fill: #343434;
+}
+
+.dg-key-2 text {
+  fill: white;
+  pointer-events: none;
+  font-family: sans-serif;
+}
+
+.dg-key-0-pressed {
+  cursor: pointer;
+  fill: aquamarine
+}
+.dg-key-1-pressed {
+  cursor: pointer;
+  fill: aquamarine
+}
+.dg-key-2-pressed {
+  cursor: pointer;
+  fill: aquamarine
+}
+
+.dg-key-0-pressed text {
+  fill: black;
+  pointer-events: none;
+  font-family: sans-serif;
+}
+.dg-key-1-pressed text {
+  fill: black;
+  pointer-events: none;
+  font-family: sans-serif;
+}
+.dg-key-2-pressed text {
+  fill: black;
+  pointer-events: none;
+  font-family: sans-serif;
+}
+
+/* other styling */
+#diagram-box {
+  display: flex
+}
+
+#diagram {
+  flex-grow: 0
+}
+
+.dg-spacer {
+  flex-grow: 1
+}
+
+#root {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+#header {
+  min-height: 24px;
+  border-bottom: solid;
+  border-width: 2px;
+}
+
+#panes {
+  display: flex;
+  grid-template-columns: 1fr 300px;
+  flex-grow: 1;
+}
+
+#left-pane {
+  padding-top: 1em;
+  flex-grow: 4;
+}
+
+#right-pane {
+  min-width: 300px;
+  border-left: solid;
+  border-width: 2px;
+}
+
+#vkbd {
+  display: none;
+  border-top: solid;
+  border-width: 2px;
+  background: #343434;
+}
+
+.vkbd-spacer {
+  display: flex;
+  flex-grow: 1
+}
+
+.vkey-0 {
+  fill: white;
+  stroke: gray;
+  cursor: pointer;
+}
+
+.vkey-1 {
+  fill: black;
+  stroke: gray;
+  cursor: pointer;
+}
+
+.vkey-0-pressed {
+  fill: aquamarine;
+  stroke: gray;
+  cursor: pointer;
+}
+
+.vkey-1-pressed {
+  fill: aquamarine;
+  stroke: gray;
+  cursor: pointer;
+}
+
+#help {
+  display: none;
+  flex-direction: column;
+  background: white;
+  position: absolute;
+  border: solid;
+  border-width: 2px;
+  top: 30px;
+  left: 20vw;
+  width: 60vw;
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+}
+
+#help-header {
+  background: #ebebeb;
+  width: 100%;
+}
+
+#help-contents {
+  overflow: scroll;
+  padding-left: 2em;
+  padding-right: 2em;
+}
