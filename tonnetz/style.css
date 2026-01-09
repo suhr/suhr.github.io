@@ -12,6 +12,42 @@
   cursor: pointer;
 }
 
+.cof-key-alt {
+  fill: transparent
+}
+
+.cof-key-alt text {
+  fill: black !important;
+  pointer-events: none;
+}
+
+.cof-key-alt :hover {
+  fill: silver;
+  cursor: pointer;
+}
+
+.cof-key-pressed {
+  fill: gold;
+  cursor: pointer;
+}
+
+.cof-key-pressed text {
+  fill: black !important;
+  pointer-events: none;
+}
+
+#dg-sig-tmp {
+  pointer-events: none;
+  fill: none;
+  stroke: color-mix(in srgb, aquamarine 90%, black);
+}
+
+#dg-sig-fix {
+  pointer-events: none;
+  fill: none;
+  stroke: gold;
+}
+
 .dg-key-0 {
   fill: transparent;
   cursor: pointer;
@@ -113,6 +149,9 @@
   min-height: 24px;
   border-bottom: solid;
   border-width: 2px;
+  padding-top: 3px;
+  padding-bottom: 2px;
+  padding-left: 5px;
 }
 
 #panes {
@@ -130,18 +169,57 @@
   min-width: 300px;
   border-left: solid;
   border-width: 2px;
+  padding-top: 4px;
+  padding-left: 5px;
+}
+
+#right-pane details summary {
+  font-family: sans-serif;
+  font-size: 11pt;
+  font-weight: bolder;
+}
+
+#sf-opts div {
+  padding-top: 5px;
+  padding-left: 0.9em;
+}
+
+#sf-opts div br {
+  display: block;
+  margin: 0.1em;
 }
 
 #vkbd {
   display: none;
-  border-top: solid;
   border-width: 2px;
-  background: #343434;
+  background: #353535;
+  padding-top: 3px;
+  padding-left: 1px;
 }
 
 .vkbd-spacer {
   display: flex;
   flex-grow: 1
+}
+
+#vkbd-dark {
+  margin-right: 3px;
+  width: 2.5em;
+  height: 2.5em;
+  /* margin-top: 2px; */
+}
+
+#vkbd-close {
+  font-size: 8pt;
+  width: 2.5em;
+  height: 2.5em;
+}
+
+#vkbd-keys {
+  border-right: solid;
+  border-bottom: solid;
+  border-width: 2px;
+  border-color: black;
 }
 
 .vkey-0 {
@@ -175,19 +253,38 @@
   position: absolute;
   border: solid;
   border-width: 2px;
-  top: 30px;
-  left: 20vw;
-  width: 60vw;
-  max-height: calc(100vh - 40px);
+  top: 40px;
+  left: calc(0.5*(100% - 100ch));
+  width: 100ch;
+  max-height: calc(100vh - 55px);
   overflow: auto;
 }
 
 #help-header {
   background: #ebebeb;
-  width: 100%;
+  width: calc(100% - 2px);
+  border-bottom: solid;
+  border-width: 2px;
+  border-color: rgb(75, 75, 75);
+  padding-left: 2px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+#help-header button {
+  font-size: 5.7pt;
+  height: 3em;
+  width: 3em;
+  margin: 1px;
+}
+
+#help-header span {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 #help-contents {
+  text-justify: auto;
   overflow: scroll;
   padding-left: 2em;
   padding-right: 2em;

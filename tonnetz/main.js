@@ -1,6 +1,6 @@
 import * as oxy from "./oxi_wasm.js"
 
-const sin = Math.sin, cos = Math.cos, sqrt = Math.sqrt
+const sin = Math.sin, cos = Math.cos, sqrt = Math.sqrt, floor = Math.floor
 const π = Math.PI, τ = 2*Math.PI
 const pressed = "-pressed"
 
@@ -33,33 +33,105 @@ function noteName(fifths)
   { let i = 0, f = fifths - 14;  while (f < 0) { f += 7; i += 1 }
     return `${"FCGDAEB"[f]}${["𝄪", "♯", "", "♭", "𝄫"][i]}`        }
 
-function drawCof()
-  { let cof = document.getElementById("cof")
-    for (let i = -5; i < 7; i++)
-      { let g = mkSe("g")
-        setAttr(g, "class", "cof-key");  setAttr(g, "id", `cof-key-${6-i}`)
-        let path = mkSe("path")
-        setAttr(path, "d", arcRect(40, 70, -1/24 + i/12, 1/24 + i/12))
-        setAttr(path, "stroke", "black");  setAttr(path, "stroke-width", "1")
-        g.appendChild(path)
-        let text = mkSe("text"), [tx, ty] = toXy(55, i/12)
-        setAttr(text, "x", tx);  setAttr(text, "y", ty)
-        setAttr(text, "text-anchor", "middle");  setAttr(text, "dominant-baseline", "central")
-        text.appendChild(document.createTextNode(noteName(-i + 1)));
-        g.appendChild(text);  cof.appendChild(g)                                               } }
+class Cof
+  { rightSide; pressed; dg; tran;
+    constructor (dg, style)
+      { this.rightSide = false;  this.pressed = null;  this.dg = dg;  this.tran = null }
 
-let cofSideRight = false;
+    press(index)
+      { if (this.pressed != null)
+          { const el = document.getElementById(`cof-key-${6-this.pressed}`)
+            setAttr(el, "class", "cof-key-alt") }
+        const el = document.getElementById(`cof-key-${6-index}`)
+        setAttr(el, "class", "cof-key-pressed");
+        const keys = Array.from(document.getElementsByClassName("cof-key"))
+        for (const other of keys) { setAttr(other, "class", "cof-key-alt") }
+        this.pressed = index
+        this.dg.setKeySig(this.keyIndex(index), true)                        }
+    release(index)
+      { setAttr(document.getElementById(`cof-key-${6-index}`), "class", "cof-key")
+        const keys = Array.from(document.getElementsByClassName("cof-key-alt"))
+        for (const el of keys) { setAttr(el, "class", "cof-key") }
+        this.pressed = null;  this.dg.rmKeySig()                                   }
 
-function flipCof(ev)
-  { const rect = ev.currentTarget.getBoundingClientRect();
-    const x = ev.clientX - rect.left - 150;
-    const y = 150 - (ev.clientY - rect.top);
-    if (Math.acos(y / sqrt(x**2 + y**2)) / π + 1/12 < 1)
-      { if (x >= 0 && !cofSideRight)
-          { document.querySelector("#cof-key-0 text").textContent = "F♯" }
-        if (x < 0 && cofSideRight)
-          { document.querySelector("#cof-key-0 text").textContent = "G♭" }
-        cofSideRight = (x >= 0)                                            } }
+    draw()
+      { let cof = document.getElementById("cof")
+        for (let i = -5; i < 7; i++)
+          { let g = mkSe("g")
+            setAttr(g, "class", "cof-key");  setAttr(g, "id", `cof-key-${6-i}`)
+            let path = mkSe("path")
+            setAttr(path, "d", arcRect(40, 70, -1/24 + i/12, 1/24 + i/12))
+            setAttr(path, "stroke", "black");  setAttr(path, "stroke-width", "1")
+            g.appendChild(path)
+            let text = mkSe("text"), [tx, ty] = toXy(55, i/12)
+            setAttr(text, "x", tx);  setAttr(text, "y", ty)
+            setAttr(text, "text-anchor", "middle");
+            setAttr(text, "dominant-baseline", "central")
+            text.appendChild(document.createTextNode(noteName(-i + 1)));
+            g.appendChild(text);   cof.appendChild(g);
+            g.addEventListener("mouseenter",
+                (ev) => this.setTmpSign(this.keyIndex(i)))
+            g.addEventListener("mouseleave", (ev) => this.unsetTmpSign())         }
+        cof.addEventListener("mouseover", (ev) =>
+          { if (this.pressed == null) this.flip(ev) })
+        cof.addEventListener("pointerdown", (ev) => this.mouseDown(ev))
+        cof.addEventListener("pointerup", (ev) => this.mouseUp(ev))
+        cof.addEventListener("pointermove", (ev) => this.mouseMove(ev))            }
+
+    coords(ev)
+      { const rect = ev.currentTarget.getBoundingClientRect();
+        return [ev.clientX - rect.left - 150, 150 - (ev.clientY - rect.top)] }
+
+    inside(ev)
+      { const [x,y] = this.coords(ev), r = sqrt(x**2 + y**2)/1.5
+        return r >= 40 && r <= 70                                }
+
+    mouseIndex(ev)
+      { const [x,y] = this.coords(ev);
+        const ac = Math.acos(y / sqrt(x**2 + y**2)) / π
+        const s = ac + 1/12 < 1 ? Math.sign(x) : -1;
+        return -floor(0.5 + 6 * s*ac)                   }
+
+    keyIndex(index) { return (index == 6 && this.rightSide) ? index : -index }
+
+    setTmpSign(i) { if (this.pressed == null) this.dg.setKeySig(i, false) }
+    unsetTmpSign() { if (this.pressed == null) this.dg.rmKeySig() }
+
+    mouseDown(ev)
+      { if (!this.inside(ev) || !ev.isPrimary) {return}
+        let cof = document.getElementById("cof")
+        cof.setPointerCapture(ev.pointerId)
+        const mix = this.mouseIndex(ev)
+        if (this.pressed == null) { this.press(mix);  this.tran = "change" }
+        else if (this.pressed == mix) { this.tran = "release" }
+        else { this.release(this.pressed);  this.press(mix);  this.tran = "change" } }
+
+    mouseUp(ev)
+      { if (this.tran == null || !ev.isPrimary) {return}
+        let cof = document.getElementById("cof")
+        cof.releasePointerCapture(ev.pointerId)
+        if (this.tran == "release")
+          { this.release(this.pressed);
+            if (this.inside(ev)) { this.setTmpSign(-this.mouseIndex(ev)) } }
+        this.tran = null                                                     }
+
+    mouseMove(ev)
+      { if (this.tran == null || !ev.isPrimary) {return}
+        const mix = this.mouseIndex(ev)
+        if (this.tran == "release")
+          { if (this.pressed == mix && this.inside(ev)) {return}
+            this.tran = "change"                                 }
+        if (this.pressed != mix) { this.release(this.pressed);  this.press(mix) } }
+
+    flip(ev)
+      { const [x,y] = this.coords(ev)
+        if (Math.acos(y / sqrt(x**2 + y**2)) / π + 1/12 < 1)
+          { if (x >= 0 && !this.rightSide)
+              { document.querySelector("#cof-key-0 text").textContent = "F♯" }
+            if (x < 0 && this.rightSide)
+              { document.querySelector("#cof-key-0 text").textContent = "G♭" }
+            this.rightSide = (x >= 0)                                          } }
+  }
 
 function noteToPitch(note, oct) { return 12*oct - 7 + 7*note.ffs + 12*note.octs }
 
@@ -97,7 +169,7 @@ class Holder
         key.addEventListener("pointerdown", (e) =>
           { key.releasePointerCapture(e.pointerId)
             if ((e.buttons & 1) == 1) {this.pressDg(key, note)} })
-        key.addEventListener("pointerup", (e) => { this.releaseDg(key, note) })
+        key.addEventListener("pointerup", () => { this.releaseDg(key, note) })
       }
 
     clearVk()
@@ -111,7 +183,7 @@ class Holder
         key.addEventListener("pointerdown", (e) =>
           { key.releasePointerCapture(e.pointerId)
             if ((e.buttons & 1) == 1) {this.pressVk(pitch)} })
-        key.addEventListener("pointerup", (e) => { this.releaseVk(pitch) })
+        key.addEventListener("pointerup", () => { this.releaseVk(pitch) })
       }
 
     dgOfPitch(pitch) { return this.pitchToDg.get(pitch) ?? [] }
@@ -227,7 +299,7 @@ function qrToXy(sz, q, r, a)
   { const x = sz * (sqrt(3) * q + sqrt(3)/2 * r),  y = sz * 3./2 * r
     return [x*cos(τ*a) - y*sin(τ*a), x*sin(τ*a) + y*cos(τ*a)]                }
 
-function hexPoints(sz, q, r, tx, ty, a)
+function hexPointsStr(sz, q, r, tx, ty, a)
   { let res = ""
     for (let i = 0; i < 6; i++)
       { const p = toXy(sz, -a + i/6), xy = qrToXy(sz, q, r, a)
@@ -240,96 +312,153 @@ function keyColor(fs)
 
 function jkKeyColor(fs) { return +(mod(fs, 12) >= 7) * 2 }
 
-function mkKey(q, r, style, layout, val)
+function mkKey(q, r, style, layout, val, is12 = false)
   { const { tx, ty, a } = layout
     let g = mkSe("g")
     let poly = mkSe("polygon");
-    poly.setAttribute("points", hexPoints(style.keySz, q, r, tx, ty, a))
-    poly.setAttribute("stroke", "black")
-    poly.setAttribute("stroke-width", style.border)
+    setAttr(poly, "points", hexPointsStr(style.keySz, q, r, tx, ty, a))
+    setAttr(poly, "stroke", "black")
+    setAttr(poly, "stroke-width", style.border)
     g.appendChild(poly)
 
+    let name, color
+    if (is12) { name = mod(-7 + 7*val.ffs, 12);  color = jkKeyColor(val.ffs) }
+    else { name = noteName(val.ffs);  color = keyColor(val.ffs) }
     let text = mkSe("text")
     let [x, y] = qrToXy(style.keySz, q, r, a)
-    text.setAttribute("x", tx+x);
-    text.setAttribute("y", ty+y)
-    text.setAttribute("text-anchor", "middle")
-    text.setAttribute("dominant-baseline", "central")
-    text.setAttribute("font-size", style.textSz)
-    const note = val(q, r)
-    text.appendChild(document.createTextNode(noteName(note.ffs)))
-    g.setAttribute("class", `dg-key-${keyColor(note.ffs)}`)
+    setAttr(text, "x", tx+x);  setAttr(text, "y", ty+y)
+    setAttr(text, "text-anchor", "middle")
+    setAttr(text, "dominant-baseline", "central")
+    setAttr(text, "font-size", style.textSz)
+    text.appendChild(document.createTextNode(name))
+    setAttr(g, "class", `dg-key-${color}`)
     g.appendChild(text)
-    holder.addKey(g, note)
+    holder.addKey(g, val)
     return g
   }
 
-function mk12Key(q, r, style, layout, val)
+function hexCorner(q, r, sz, layout, i)
   { const { tx, ty, a } = layout
-    let g = mkSe("g")
-    let poly = mkSe("polygon");
-    poly.setAttribute("points", hexPoints(style.keySz, q, r, tx, ty, a))
-    poly.setAttribute("stroke", "black")
-    poly.setAttribute("stroke-width", style.border)
-    g.appendChild(poly)
-
-    let text = mkSe("text")
-    let [x, y] = qrToXy(style.keySz, q, r, a)
-    text.setAttribute("x", tx+x);
-    text.setAttribute("y", ty+y)
-    text.setAttribute("text-anchor", "middle")
-    text.setAttribute("dominant-baseline", "central")
-    text.setAttribute("font-size", style.textSz)
-    const note = val(q, r)
-    text.appendChild(document.createTextNode(mod(-7 + 7*note.ffs, 12)))
-    g.setAttribute("class", `dg-key-${jkKeyColor(note.ffs)}`)
-    g.appendChild(text)
-    holder.addKey(g, note)
-    return g
+    const p = toXy(sz, -a + i/6), xy = qrToXy(sz, q, r, a)
+    return [tx + p[0] + xy[0], ty + p[1] + xy[1]]
   }
 
-function drawWh(dg, style, octs)
+function doWh(fun, style, octs)
   { const { keySz: sz, border: bd } = style
     const layout = { tx: bd/2 + sqrt(3)/2*sz, ty: bd/2 - sz/2, a: 0 }
     const val = (q, r) => ({ ffs:  -7 + 2*q + r,  octs: 7 - q - r })
     for (let o = 0; o < octs; o++)
       { for (let i = 0; i < 10; i++)
-          { dg.appendChild(mkKey(i - o, 2*o + 1, style, layout, val)) }
+          { fun(i - o, 2*o + 1, style, layout, val(i - o, 2*o + 1)) }
         for (let i = 0; i < 11; i++)
-          { dg.appendChild(mkKey(i - o - 1, 2*o + 2, style, layout, val)) } }
+          { fun(i - o - 1, 2*o + 2, style, layout, val(i - o - 1, 2*o + 2)) } }
   }
 
-function drawGk(dg, style, octs)
+function doGk(fun, style, octs)
   { const [x, y] = qrToXy(1, 5, 2, 0),  a = -Math.asin(y / sqrt(x**2 + y**2)) / τ
     const layout = { tx: 1.5*style.keySz,  ty: 4*style.keySz, a: a }
     const val = (q, r) => ({ ffs: 1 + 2*q - 5*r,  octs: -q + 3*r })
     for (let o = 0; o < octs; o++)
       { for (let k = -1; k < 2; k++)
           { for (let i = 0; i < 3; i++)
-              { dg.appendChild(mkKey(5*o + i+k, 2*o - k, style, layout, val)) }
+              { fun(5*o + i+k, 2*o - k, style, layout, val(5*o + i+k, 2*o - k)) }
             for (let i = 0; i < 4; i++)
-              { dg.appendChild(mkKey(5*o + 2+i+k, 2*o + 1 - k, style, layout, val)) } } }
-    dg.appendChild(mkKey(5*octs - 1, 2*octs + 1, style, layout, val))
-    dg.appendChild(mkKey(5*octs, 2*octs, style, layout, val))
-    dg.appendChild(mkKey(5*octs + 1, 2*octs - 1, style, layout, val))
+              { let v = val(5*o + 2+i+k, 2*o + 1 - k)
+                fun(5*o + 2+i+k, 2*o + 1 - k, style, layout, v) }                 } }
+    fun(5*octs - 1, 2*octs + 1, style, layout, val(5*octs - 1, 2*octs + 1))
+    fun(5*octs, 2*octs, style, layout, val(5*octs, 2*octs))
+    fun(5*octs + 1, 2*octs - 1, style, layout, val(5*octs + 1, 2*octs - 1))
   }
 
-function drawJk(dg, style, octs)
+function doJk(fun, style, octs)
   { const { keySz: sz, border: bd } = style
     const layout = { tx: bd/2 + sqrt(3)*sz, ty: bd/2 + sz, a: 0 }
     const val = (q, r) => ({ ffs: -4 + 2*q - 5*r,  octs: 3 - q + 3*r })
     for (let o = 0; o < octs; o++)
       { for (let q = 0; q < 6; q++)
-          { dg.appendChild(mk12Key(6*o + q, 0, style, layout, val)) }
+          { fun(6*o + q, 0, style, layout, val(6*o + q, 0), true) }
         for (let q = 0; q < 6; q++)
-          { dg.appendChild(mk12Key(6*o + q - 1, 1, style, layout, val)) }
+          { fun(6*o + q - 1, 1, style, layout, val(6*o + q - 1, 1), true) }
         for (let q = 0; q < 6; q++)
-          { dg.appendChild(mk12Key(6*o + q - 1, 2, style, layout, val)) }
+          { fun(6*o + q - 1, 2, style, layout, val(6*o + q - 1, 2), true) }
         for (let q = 0; q < 6; q++)
-          { dg.appendChild(mk12Key(6*o + q - 2, 3, style, layout, val)) } }
-    dg.appendChild(mk12Key(6*octs - 1, 1, style, layout, val))
-    dg.appendChild(mk12Key(6*octs - 2, 3, style, layout, val))
+          { fun(6*o + q - 2, 3, style, layout, val(6*o + q - 2, 3), true) } }
+    fun(6*octs - 1, 1, style, layout, val(6*octs - 1, 1), true)
+    fun(6*octs - 2, 3, style, layout, val(6*octs - 2, 3), true)
   }
+
+class Diagram
+  { el; layout; octs; sig; isFix; style
+
+    constructor (el, style)
+      { this.el = el;  this.layout = 'wh';  this.octs = 3;  this.sig = null;
+        this.isFix = false;  this.style = style                              }
+    addKeys(style)
+      { const fun = (q, r, style, layout, val, is12) =>
+          { this.el.appendChild(mkKey(q, r, style, layout, val, is12)) }
+        if (this.layout == 'wh') { doWh(fun, style, this.octs) }
+        else if (this.layout == 'gk') { doGk(fun, style, this.octs) }
+        else if (this.layout == 'jk') { doJk(fun, style, this.octs) }
+        else { todo() }
+      }
+
+    addKeySig(sig, isFix)
+      { let map = new Map()
+        const fun = (q, r, style, layout, val, is12) =>
+          { function p2i(p) { return [floor(0.1 + p[0]), floor(0.1 + p[1])] }
+            const color =
+              is12 ? jkKeyColor(val.ffs - sig) : keyColor(val.ffs - sig)
+            if (color == 0) {for (let i = 0; i < 6; i++)
+              { let c1 = hexCorner(q, r, style.keySz, layout, i), f1 = p2i(c1)
+                let f2 = p2i(hexCorner(q, r, style.keySz, layout, i + 1))
+                let s21 = JSON.stringify([f2, f1])
+                if (! map.has(s21)) {map.set(JSON.stringify([f1, f2]), c1)}
+                else { map.delete(s21) }                                       }} }
+        if (this.layout == 'wh') { doWh(fun, this.style, this.octs) }
+        else if (this.layout == 'gk') { doGk(fun, this.style, this.octs) }
+        else if (this.layout == 'jk') { doJk(fun, this.style, this.octs) }
+        else { todo() }
+
+        let m = new Map()
+        for (let [k, v] of map.entries())
+          { let [f1, f2] = JSON.parse(k);
+            m.set(JSON.stringify(f1), [JSON.stringify(f2), v]) }
+        let g = mkSe("g")
+        while (m.size > 0)
+          { let line = "", cur = m.keys().next().value
+            for (var v = m.get(cur); v !== undefined; v = m.get(cur))
+              { m.delete(cur);  line += `${v[1][0]},${v[1][1]} `;  cur = v[0] }
+            let l = mkSe("polygon")
+            setAttr(l, "points", line.trim())
+            setAttr(l, "stroke-width", 2 + this.style.border)
+            g.appendChild(l)
+          }
+        setAttr(g, "id", isFix ? "dg-sig-fix" : "dg-sig-tmp")
+        this.el.appendChild(g)
+        this.sig = sig;  this.isFix = isFix
+      }
+
+    rmKeySig()
+      { document.getElementById("dg-sig-tmp")?.remove();
+        document.getElementById("dg-sig-fix")?.remove();
+        this.sig = null                                  }
+
+    setKeySig(sig, isFix)
+      { if (this.sig === sig && this.isFix == isFix) { return }
+        this.rmKeySig(); this.addKeySig(sig, isFix) }
+
+    changeLayout(holder, layout)
+      { holder.clearDg()
+        this.layout = layout;
+        this.el.textContent = ''
+        this.addKeys(this.style)
+        const bb = this.el.getBBox()
+        setAttr(this.el, "width", 2*bb.x + bb.width);
+        setAttr(this.el, "height", 2*bb.y + bb.height);
+        if (this.sig !== null) { this.addKeySig(this.sig, this.isFix) }
+      }
+  }
+
 
 // Virtual keyboard
 
@@ -359,25 +488,11 @@ function drawVkbd(octs, dark)
     setAttr(rect, "width", 23);  setAttr(rect, "height", 120);
     setAttr(rect, "class", wcl(0));
     el.appendChild(rect);  holder.addVkKey(rect, start + 12*octs)
-    el.setAttribute("width", 161*octs + 23);                                       }
+    setAttr(el, "width", 161*octs + 23);                                       }
 
-let currentLayout;
 
-function changeLayout(layout)
-  { const style = { keySz: 40, textSz: 29, border: 2.5 }
-    const octs = 3
-    holder.clearDg()
-    let dg = document.getElementById("diagram")
-    dg.textContent = ''
-    if (layout == 'wh') { drawWh(dg, style, octs) }
-    else if (layout == 'gk') { drawGk(dg, style, octs) }
-    else if (layout == 'jk') { drawJk(dg, style, octs) }
-    else { todo() }
-    currentLayout = layout
-    const bb = dg.getBBox()
-    dg.setAttribute("width", 2*bb.x + bb.width);
-    dg.setAttribute("height", 2*bb.y + bb.height);
-  }
+let diagram;
+let cof;
 
 async function onLoad()
   { const wasm = await fetch("./oxi_wasm_bg.wasm")
@@ -396,12 +511,13 @@ async function onLoad()
       { dark = !dark;  dbtn.innerText = ["🌙", "☀️"][+dark]
         holder.clearVk();  drawVkbd(5, dark)                })
 
-    drawCof()
-    document.getElementById("cof").addEventListener("mouseover", flipCof)
-    currentLayout = 'wh'
-    changeLayout('wh')
+    const style = { keySz: 40, textSz: 29, border: 2.5 }
+    diagram = new Diagram(document.getElementById("diagram"), style)
+    diagram.changeLayout(holder, 'wh')
+    cof = new Cof(diagram, style)
+    cof.draw()
     document.getElementById("layout-selector")
-        .addEventListener("change", (e) => changeLayout(e.target.value))
+        .addEventListener("change", (e) => diagram.changeLayout(holder, e.target.value))
     navigator.requestMIDIAccess().then((ma) => { midi.setInputs(ma.inputs) })
     let pedal = false;
     window.addEventListener("keydown", (e) =>
@@ -413,7 +529,7 @@ async function onLoad()
           { if (pedal) {holder.releasePedal()}  pedal = false; } })
 
     let sf_file = document.getElementById("sf-file");
-    sf_file.addEventListener("input", async (e) =>
+    sf_file.addEventListener("input", async () =>
       { const data = await sf_file.files[0].arrayBuffer();
         holder.setSynth(new Synth(data))                   })
   }
