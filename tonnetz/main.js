@@ -495,16 +495,7 @@ let diagram;
 let cof;
 
 async function onLoad()
-  { const wasm = await fetch("./oxi_wasm_bg.wasm")
-    const compiled = await WebAssembly.compile(await wasm.arrayBuffer())
-    oxy.initSync({module: compiled})
-
-    const file = await fetch("./gm.sf2");
-    const data = await file.arrayBuffer();
-
-    holder.setSynth(new Synth(data))
-
-    let dark = false
+  { let dark = false
     drawVkbd(5, dark)
     const dbtn = document.getElementById("vkbd-dark")
     dbtn.addEventListener("click", (_) =>
@@ -532,6 +523,11 @@ async function onLoad()
     sf_file.addEventListener("input", async () =>
       { const data = await sf_file.files[0].arrayBuffer();
         holder.setSynth(new Synth(data))                   })
+
+    const loader = new Worker('loader.js', {type: "module"})
+    loader.addEventListener("message", (ev) =>
+      { oxy.initSync({module: ev.data.compiled});
+        holder.setSynth(new Synth(ev.data.data))  })
   }
 
 addEventListener("DOMContentLoaded", (_) => onLoad())
