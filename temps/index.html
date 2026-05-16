@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Some temperaments</title>
+    <style>
+        body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-family: sans-serif;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        td:nth-child(3) {
+            font-family: monospace;
+        }
+        td:nth-child(4) {
+            font-family: monospace;
+        }
+    </style>
+    <link rel="prefetch" href="decipher.js" />
+    <script src="temps.js" type="module"></script>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th style="width:20%">Name</th>
+                <th style="width:20%">Subgroup</th>
+                <th>Commas</th>
+                <th>Commas (pretty)</th>
+            </tr>
+        </thead>
+        <tbody id="tempTable">
+        </tbody>
+    </table>
+</body>
+</html>
