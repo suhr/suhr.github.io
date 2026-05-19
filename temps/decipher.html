@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comma decipher</title>
+    <style>
+        body {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 40px;
+            font-family: sans-serif;
+        }
+
+        #input {
+            display: block;
+            width: 100%;
+            margin: 0 auto 16px;
+            padding: 7px;
+            box-sizing: border-box;
+        }
+
+        #info {
+            margin: 0 auto;
+            border: 2px solid #333;
+            padding: 16px;
+        }
+
+        #info div {
+            margin: 8px 0;
+            padding-bottom: 4px;
+        }
+
+        #info strong {
+            display: inline-block;
+            width: 120px;
+        }
+    </style>
+    <link rel="prefetch" href="decipher.js" />
+    <script src="decipher.js" type="module"></script>
+</head>
+<body>
+    <input type="text" id="input" placeholder="Enter ratio here">
+
+    <div id="info">
+        <div><strong>Ratio:</strong> <span id="ratio"></span></div>
+        <div><strong>Subgroup:</strong> <span id="subgroup"></span></div>
+        <div><strong>Monzo:</strong> <span id="monzo"></span></div>
+        <div><strong>Interval sum:</strong> <span id="interval-sum"></span></div>
+        <div><strong>Cents:</strong> <span id="cents"></span></div>
+    </div>
+</body>
+</html>
